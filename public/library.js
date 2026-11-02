@@ -54,8 +54,8 @@ async function api(p, options = {}) {
       ...options.headers,
     },
   });
-  if (!r.ok)
-    throw Error(
+  if (!r.ok) {
+    const error = Error(
       {
         401: 'Token 无效或已过期',
         403: '没有权限或达到 API 限流，请检查 Contents 读写权限',
@@ -64,6 +64,9 @@ async function api(p, options = {}) {
         422: '提交失败：路径已存在或参数不合法',
       }[r.status] || `GitHub 请求失败（${r.status}）`,
     );
+    error.status = r.status;
+    throw error;
+  }
   return r.status === 204 ? null : options.raw ? r.arrayBuffer() : r.json();
 }
 async function run(fn) {
@@ -100,6 +103,13 @@ async function refresh() {
   try {
     tree = await api(`git/trees/${encodeURIComponent(branch)}?recursive=1`);
   } catch (e) {
+    // An empty repository has a default branch but no tree yet. GitHub reports that as 409.
+    if (e.status === 409) {
+      entries = [];
+      render();
+      status(`已连接 ${repo} · 仓库还没有任何提交，可以直接新建或上传`);
+      return;
+    }
     throw Error('无法读取数据仓，请先在 GitHub 初始化一个 README，并检查权限。');
   }
   if (tree.truncated) throw Error('数据仓目录过大，列表被截断，请使用较小的专用数据仓');

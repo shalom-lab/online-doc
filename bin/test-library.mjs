@@ -29,7 +29,8 @@ w.fetch = async (url, opts) => {
   };
 };
 w.eval(
-  readFileSync('public/library.js', 'utf8') + '\nwindow.testAPI={api,put,encode,getState:()=>({repo,token,entries})};',
+  readFileSync('public/library.js', 'utf8') +
+    '\nwindow.testAPI={api,put,encode,refresh,getState:()=>({repo,token,entries,branch})};',
 );
 await new Promise((r) => setTimeout(r, 30));
 assert.equal(w.document.querySelectorAll('#files button').length, 1);
@@ -58,6 +59,15 @@ w.fetch = async () => ({ ok: false, status: 409 });
 await assert.rejects(() => w.testAPI.put(new Blob([text]), 'online-doc-data/中文.docx', 'old'), /其他设备修改/);
 w.fetch = async () => ({ ok: false, status: 403 });
 await assert.rejects(() => w.testAPI.api(''), /Contents/);
+w.fetch = async (url) =>
+  url === 'https://api.github.com/repos/owner/data'
+    ? { ok: true, status: 200, json: async () => ({ default_branch: 'main' }) }
+    : { ok: false, status: 409, json: async () => ({ message: 'Git Repository is empty.' }) };
+await w.testAPI.refresh();
+assert.equal(w.document.querySelectorAll('#files button').length, 0);
+assert.equal(w.testAPI.getState().branch, 'main');
+assert.match(w.document.getElementById('status').textContent, /可以直接新建或上传/);
+assert.doesNotMatch(w.document.getElementById('status').textContent, /README/);
 dom.window.close();
 console.log('PASS: BYOK bootstrap, file filtering, Unicode, SHA writes, 409 conflict, 403 permissions');
 
