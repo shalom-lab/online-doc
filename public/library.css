@@ -187,6 +187,9 @@ main[aria-busy='true'] { cursor: progress; }
 
 select { display:block; width:100%; font:inherit; padding:9px 11px; border:1px solid #cddbd2; border-radius:7px; background:white; margin:7px 0 16px; }
 /* Balanced compact spacing */
+.github-link { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 7px; color: #475f53; text-decoration: none; }
+.github-link:hover { background: #e8efeb; color: #244d3e; }
+.github-link:focus-visible { outline: 2px solid #74ac95; outline-offset: 2px; }
 aside { width: 240px; padding: 20px 14px; }
 .library-actions { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
 .library-actions button { margin: 0; padding: 8px 6px; }
