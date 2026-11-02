@@ -36,4 +36,11 @@
         ><label
           >个人访问 Token<input id="token" type="password" autocomplete="off" placeholder="仅存于当前浏览器"
         /></label>
-        <p>Token 需要所选数据仓 Contents 
+        <p>Token 需要所选数据仓 Contents 读写权限。<br />不向界面仓或第三方发送；同域脚本可访问本机存储。</p>
+        <button id="persist" type="button">保存设置</button><button id="clear" type="button">清除设置</button
+        ><button>取消</button>
+      </form>
+    </dialog>
+    <script type="module" src="library.js"></script>
+  </body>
+</html>

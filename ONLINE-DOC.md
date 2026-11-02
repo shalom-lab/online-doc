@@ -24,5 +24,3 @@ Node 24，pnpm 11.4.0，安装锁定依赖、执行上游构建、运行 Pages �
 本地：`pnpm install --frozen-lockfile`、`pnpm build`、`node bin/github-pages.mjs`。构建脚本需要 Bash（Windows 可使用 Git Bash）。上游包含大体积 Office/WASM 资源，需核验 Pages 发布体积及子路径行为。
 
 生产构建与 BYOK 模拟 API 测试已通过。Pages 适配仍待浏览器验证：包含路径前缀处理和 Brotli WASM 解压。正式上线前必须验证编辑器初始化、中文输入、三种 Office 格式保存及预览。此文件不代表部署成功。
-
-

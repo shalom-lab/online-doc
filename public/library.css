@@ -107,4 +107,38 @@ iframe {
 }
 #empty {
   margin: auto;
-  paddin
+  padding: 40px;
+  line-height: 2;
+  color: #698276;
+}
+dialog {
+  border: 1px solid #d7e1db;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 500px;
+  width: 90%;
+}
+dialog::backdrop {
+  background: #122e2866;
+}
+dialog p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #667b70;
+}
+@media (max-width: 750px) {
+  main {
+    display: block;
+    height: auto;
+  }
+  aside {
+    width: 100%;
+    max-height: 38vh;
+  }
+  section {
+    height: 75vh;
+  }
+  header span {
+    display: none;
+  }
+}
