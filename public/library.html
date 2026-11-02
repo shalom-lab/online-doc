@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>
+    在线文档 · 我的文档库</title
+  ><link rel="stylesheet" href="library.css" />
+  <body>
+    <header>
+      <strong>▤ 在线文档</strong><span>独立数据仓 · GitHub BYOK</span><button id="settings">仓库设置</button>
+    </header>
+    <main>
+      <aside>
+        <h1>我的文档库</h1>
+        <p id="repoLabel">尚未设置数据仓</p>
+        <button id="refresh">刷新列表</button><button id="create">新建文档</button><button id="upload">上传文件</button
+        ><input id="picker" type="file" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
+        <div id="files"></div>
+        <small>文档提交到你指定的数据仓。<br />界面由 GitHub Pages 托管。</small>
+      </aside>
+      <section>
+        <nav>
+          <b id="title">选择文档，开始创作</b><button id="preview">只读预览</button><button id="edit">编辑</button
+          ><button id="save">提交保存</button><button id="delete">删除</button>
+        </nav>
+        <p id="status" role="status">先在仓库设置中填写数据仓及 Token。</p>
+        <iframe id="editor" title="文档编辑器" hidden></iframe>
+        <div id="empty">
+          <h2>让文档有自己的版本历史</h2>
+          <p>支持 Word、Excel、PowerPoint 与 PDF。<br />打开、编辑、提交，文件保存在你的 GitHub 数据仓。</p>
+        </div>
+      </section>
+    </main>
+    <dialog id="config">
+      <form method="dialog">
+        <h2>连接数据仓</h2>
+        <label>仓库<input id="repo" placeholder="owner/repo" required /></label
+        ><label
+          >个人访问 Token<input id="token" type="password" autocomplete="off" placeholder="仅存于当前浏览器"
+        /></label>
+        <p>Token 需要所选数据仓 Contents 
