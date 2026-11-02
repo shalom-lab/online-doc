@@ -186,3 +186,17 @@ dialog #toast { position: static; transform: none; margin: 16px 0 0; max-width: 
 main[aria-busy='true'] { cursor: progress; }
 
 select { display:block; width:100%; font:inherit; padding:9px 11px; border:1px solid #cddbd2; border-radius:7px; background:white; margin:7px 0 16px; }
+/* Balanced compact spacing */
+aside { width: 240px; padding: 20px 14px; }
+.library-actions { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
+.library-actions button { margin: 0; padding: 8px 6px; }
+.storage-path { margin: 12px 0 8px; font-size: 11px; color: #7b8e83; }
+.storage-path code { font-size: 10px; }
+header strong { display: flex; align-items: center; gap: 6px; }
+#repoLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+nav { min-height: 50px; padding: 8px 16px; }
+#files button { border-radius: 6px; line-height: 1.5; }
+#new-form button[type='submit'] { background: #326f59; border-color: #326f59; color: white; }
+#cancel-new { float: right; }
+dialog code { overflow-wrap: anywhere; font-size: 10px; background: #f1f5f2; padding: 2px 4px; border-radius: 3px; }
+@media(max-width:750px) { aside { width:100%; } .library-actions { max-width:320px; } }

@@ -11,8 +11,7 @@
       <aside>
         <h1>我的文档库</h1>
         <p id="repoLabel">尚未设置数据仓</p>
-        <button id="refresh">刷新列表</button><button id="create">新建文档</button><button id="upload">上传文件</button
-        ><input id="picker" type="file" accept=".docx,.xlsx,.pptx,.pdf,.doc,.xls,.ppt,.odt,.ods,.odp,.rtf,.txt,.csv" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
+        <div class="library-actions"><button id="create">＋ 新建</button><button id="upload">上传</button><button id="refresh" title="刷新文档列表">刷新</button></div><input id="picker" type="file" accept=".docx,.xlsx,.pptx,.pdf,.doc,.xls,.ppt,.odt,.ods,.odp,.rtf,.txt,.csv" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
         <p class="storage-path">存储目录：<code>online-doc-data/</code></p><div id="files"></div>
         <small>文档提交到你指定的数据仓。<br />界面由 GitHub Pages 托管。</small>
       </aside>
@@ -45,6 +44,7 @@
 <script type="module" src="library.js"></script>
   </body>
 </html>
+
 
 
 
