@@ -22,8 +22,8 @@ w.fetch = async (url, opts) => {
         ? { default_branch: 'main' }
         : {
             tree: [
-              { type: 'blob', path: '中文.docx' },
-              { type: 'blob', path: 'ignored.exe' },
+              { type: 'blob', path: 'online-doc-data/中文.docx' },
+              { type: 'blob', path: '外部.docx' },
             ],
           },
   };
@@ -39,14 +39,16 @@ assert(calls.every((c) => c.url.startsWith('https://api.github.com/repos/owner/d
 assert(calls.every((c) => c.opts.headers.Authorization === 'Bearer test-token'));
 const text = '中文文档';
 assert.equal(Buffer.from(w.testAPI.encode(new TextEncoder().encode(text)), 'base64').toString(), text);
-await w.testAPI.put(new Blob([text]), '中文.docx', 'original-sha');
+await w.testAPI.put(new Blob([text]), 'online-doc-data/中文.docx', 'original-sha');
+await assert.rejects(() => w.testAPI.put(new Blob([text]), '外部.docx'), /online-doc-data/);
 const body = JSON.parse(calls.at(-1).opts.body);
 assert.equal(body.sha, 'original-sha');
 assert.equal(body.branch, 'main');
 assert.equal(Buffer.from(body.content, 'base64').toString(), text);
 w.fetch = async () => ({ ok: false, status: 409 });
-await assert.rejects(() => w.testAPI.put(new Blob([text]), '中文.docx', 'old'), /其他设备修改/);
+await assert.rejects(() => w.testAPI.put(new Blob([text]), 'online-doc-data/中文.docx', 'old'), /其他设备修改/);
 w.fetch = async () => ({ ok: false, status: 403 });
 await assert.rejects(() => w.testAPI.api(''), /Contents/);
 dom.window.close();
 console.log('PASS: BYOK bootstrap, file filtering, Unicode, SHA writes, 409 conflict, 403 permissions');
+

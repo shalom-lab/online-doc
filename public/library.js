@@ -1,3 +1,4 @@
+const DATA_DIR = 'online-doc-data/';
 const $ = (id) => document.getElementById(id);
 let repo = localStorage.getItem('gh-online-doc-repo') || '',
   token = localStorage.getItem('gh-online-doc-token') || '';
@@ -23,7 +24,16 @@ if ('serviceWorker' in navigator && !crossOriginIsolated) {
     })
     .catch(() => {});
 }
-const status = (s) => ($('status').textContent = s);
+let toastTimer;
+const toast = document.createElement('div');
+toast.id = 'toast'; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite'); toast.hidden = true;
+document.body.append(toast);
+const status = (s) => {
+  $('status').textContent = s;
+  const host = document.querySelector('dialog[open]') || document.body;
+  host.append(toast); toast.textContent = s; toast.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.hidden = true; }, 5000);
+};
 const path = (p) => p.split('/').map(encodeURIComponent).join('/');
 function guard() {
   return !dirty || confirm('当前修改尚未提交，确定放弃？');
@@ -55,7 +65,10 @@ async function api(p, options = {}) {
 }
 async function run(fn) {
   if (busy) return;
+  if (!repo || !token) { status('尚未连接数据仓，请点击右上角「仓库设置」填写仓库和 Token。'); return; }
   busy = true;
+  $('status').textContent = '正在处理，请稍候…';
+  document.querySelector('main').setAttribute('aria-busy', 'true');
   document.querySelectorAll('button').forEach((b) => (b.disabled = true));
   try {
     await fn();
@@ -63,6 +76,7 @@ async function run(fn) {
     status(e.message);
   } finally {
     busy = false;
+    document.querySelector('main').setAttribute('aria-busy', 'false');
     document.querySelectorAll('button').forEach((b) => (b.disabled = false));
   }
 }
@@ -71,7 +85,7 @@ function render() {
   $('files').replaceChildren();
   for (const f of entries.filter((f) => f.path.toLowerCase().includes($('search').value.toLowerCase()))) {
     const b = document.createElement('button');
-    b.textContent = f.path;
+    b.textContent = f.path.slice(DATA_DIR.length);
     b.onclick = () => run(() => open(f));
     $('files').append(b);
   }
@@ -86,7 +100,7 @@ async function refresh() {
     throw Error('无法读取数据仓，请先在 GitHub 初始化一个 README，并检查权限。');
   }
   if (tree.truncated) throw Error('数据仓目录过大，列表被截断，请使用较小的专用数据仓');
-  entries = tree.tree.filter((x) => x.type === 'blob' && /\.(docx|xlsx|pptx|pdf)$/i.test(x.path));
+  entries = tree.tree.filter((x) => x.type === 'blob' && x.path.startsWith(DATA_DIR) && /\.(docx|xlsx|pptx|pdf|doc|xls|ppt|odt|ods|odp|rtf|txt|csv)$/i.test(x.path));
   render();
   status(`已连接 ${repo} · ${entries.length} 个文档`);
 }
@@ -159,6 +173,7 @@ function encode(bytes) {
   return btoa(s);
 }
 async function put(file, p, sha) {
+  if (!p.startsWith(DATA_DIR) || p.includes('\\') || p.split('/').some(x => !x || x === '.' || x === '..')) throw Error('文档必须保存在 online-doc-data/ 目录内');
   if (file.size > 20 * 1024 * 1024) throw Error('当前版本限制文件小于 20 MB');
   const content = encode(new Uint8Array(await file.arrayBuffer()));
   return api(`contents/${path(p)}`, {
@@ -179,6 +194,7 @@ $('persist').onclick = () => {
     status('仓库格式应为 owner/repo');
     return;
   }
+  if (!($('token').value.trim() || token)) { status('请填写 GitHub Token 后再保存；也可以直接取消。'); $('token').focus(); return; }
   repo = r;
   token = $('token').value.trim() || token;
   localStorage.setItem('gh-online-doc-repo', repo);
@@ -198,30 +214,39 @@ $('clear').onclick = () => {
 };
 $('refresh').onclick = () => run(refresh);
 $('search').oninput = render;
-$('create').onclick = () =>
+$('create').onclick = () => {
+  if (!repo || !token) { status('请先在「仓库设置」中连接数据仓。'); return; }
+  if (!guard()) return;
+  $('new-name').value = '未命名';
+  $('new-doc').showModal();
+  $('new-name').focus();
+};
+$('cancel-new').onclick = () => $('new-doc').close();
+$('new-form').onsubmit = (event) => {
+  event.preventDefault();
+  const ext = $('new-type').value;
+  const name = $('new-name').value.trim().replace(/\.(docx|xlsx|pptx)$/i, '');
+  if (!name || name.includes('\\') || name.split('/').some(x => !x || x === '.' || x === '..')) { status('请输入有效名称，可使用子目录，不能包含 .. 或反斜杠。'); return; }
+  const p = DATA_DIR + name + '.' + ext;
   run(async () => {
-    if (!guard()) return;
     if (!branch) await refresh();
-    const p = prompt('输入新文件路径（支持 .docx、.xlsx、.pptx）', '文档/未命名.docx');
-    if (!p) return;
-    if (!/\.(docx|xlsx|pptx)$/i.test(p) || p.startsWith('/') || p.split('/').some((x) => !x || x === '.' || x === '..'))
-      throw Error('请输入有效的 Office 文件路径');
-    if (entries.some((f) => f.path === p)) throw Error('该文件已存在');
+    if (entries.some(f => f.path === p)) throw Error('同名文件已存在，请换一个名称。');
+    $('new-doc').close();
     current = null;
-    await mount(`&new=${p.split('.').pop().toLowerCase()}`);
-    current = { path: p };
-    dirty = true;
+    await mount(`&new=${ext}`);
+    current = {path:p}; dirty = true;
     $('title').textContent = p;
-    status('新文档已打开，编辑完成后点击提交保存。');
+    status('已新建，编辑完成后点击「提交保存」。');
   });
-$('upload').onclick = () => $('picker').click();
+};
+$('upload').onclick = () => { if (!repo || !token) { status('请先在「仓库设置」中连接数据仓，再上传文件。'); return; } $('picker').click(); };
 $('picker').onchange = () =>
   run(async () => {
     const f = $('picker').files[0];
     if (!f) return;
-    if (!/\.(docx|xlsx|pptx|pdf)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
+    if (!/\.(docx|xlsx|pptx|pdf|doc|xls|ppt|odt|ods|odp|rtf|txt|csv)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
     if (!branch) await refresh();
-    await put(f, f.name);
+    await put(f, DATA_DIR + f.name);
     await refresh();
     $('picker').value = '';
   });
@@ -229,10 +254,17 @@ $('save').onclick = () =>
   run(async () => {
     if (!current) throw Error('请先打开或新建文档');
     status('正在导出并提交…');
-    const data = await message('document:save');
+    const ext = current.path.split('.').pop().toLowerCase();
+    const targetExt = ({doc:'docx',odt:'docx',rtf:'docx',txt:'docx',xls:'xlsx',ods:'xlsx',ppt:'pptx',odp:'pptx'})[ext] || ext;
+    const savePath = current.path.replace(/\.[^.]+$/, '.' + targetExt);
+    const converted = savePath !== current.path;
+    if (converted && !confirm(`此格式将另存为 ${savePath}，保留原文件。是否继续？`)) return;
+    const data = await message('document:save', {targetExt:targetExt.toUpperCase()});
     const version = changeVersion;
     dirty = true;
-    const result = await put(data.file, current.path, current.sha);
+    const result = await put(data.file, savePath, converted ? undefined : current.sha);
+    current.path = savePath;
+    $('title').textContent = savePath;
     current.sha = result.content.sha;
     dirty = Boolean(data.dirty) || changeVersion !== version;
     if (!entries.some((f) => f.path === current.path)) {
@@ -243,11 +275,15 @@ $('save').onclick = () =>
   });
 $('preview').onclick = () =>
   run(async () => {
-    if (current) await message('document:set-readonly', { readonly: true });
+    if (!current) throw Error('请先从左侧打开文档，再预览。');
+    await message('document:set-readonly', { readonly: true });
+    status('已切换为只读预览');
   });
 $('edit').onclick = () =>
   run(async () => {
-    if (current) await message('document:set-readonly', { readonly: false });
+    if (!current) throw Error('请先打开或新建文档，再编辑。');
+    await message('document:set-readonly', { readonly: false });
+    status('已切换为编辑模式');
   });
 $('delete').onclick = () =>
   run(async () => {
@@ -272,4 +308,11 @@ window.addEventListener('beforeunload', (e) => {
 });
 render();
 if (repo && token) run(refresh);
+
+
+// Cancel must never submit or validate the settings form.
+$('cancel-settings').onclick = () => $('config').close();
+
+
+
 
