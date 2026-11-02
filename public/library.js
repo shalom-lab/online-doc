@@ -31,6 +31,8 @@ function guard() {
 async function api(p, options = {}) {
   if (!repo || !token) throw Error('请先配置数据仓和 Token');
   const r = await fetch(`https://api.github.com/repos/${repo}/${p}`, {
+    cache: 'no-store',
+    signal: AbortSignal.timeout(120000),
     ...options,
     headers: {
       Accept: 'application/vnd.github+json',
@@ -121,6 +123,7 @@ function mount(query = '') {
 window.addEventListener('message', (e) => {
   if (e.origin !== location.origin || e.source !== $('editor').contentWindow) return;
   const m = e.data;
+  if (!m || typeof m !== 'object') return;
   if (m.type === 'document:ready') ready = true;
   if (m.type === 'document:dirty-changed') {
     dirty = dirty || m.payload.dirty;
@@ -204,6 +207,7 @@ $('create').onclick = () =>
     if (!/\.(docx|xlsx|pptx)$/i.test(p) || p.startsWith('/') || p.split('/').some((x) => !x || x === '.' || x === '..'))
       throw Error('请输入有效的 Office 文件路径');
     if (entries.some((f) => f.path === p)) throw Error('该文件已存在');
+    current = null;
     await mount(`&new=${p.split('.').pop().toLowerCase()}`);
     current = { path: p };
     dirty = true;
@@ -215,4 +219,57 @@ $('picker').onchange = () =>
   run(async () => {
     const f = $('picker').files[0];
     if (!f) return;
-    if (!/\.(docx|xlsx|pptx|pdf)$/i.test(f.name)) 
+    if (!/\.(docx|xlsx|pptx|pdf)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
+    if (!branch) await refresh();
+    await put(f, f.name);
+    await refresh();
+    $('picker').value = '';
+  });
+$('save').onclick = () =>
+  run(async () => {
+    if (!current) throw Error('请先打开或新建文档');
+    status('正在导出并提交…');
+    const data = await message('document:save');
+    const version = changeVersion;
+    dirty = true;
+    const result = await put(data.file, current.path, current.sha);
+    current.sha = result.content.sha;
+    dirty = Boolean(data.dirty) || changeVersion !== version;
+    if (!entries.some((f) => f.path === current.path)) {
+      entries.push({ path: current.path, type: 'blob' });
+      render();
+    }
+    status('提交成功，文档已保存到 GitHub 数据仓。');
+  });
+$('preview').onclick = () =>
+  run(async () => {
+    if (current) await message('document:set-readonly', { readonly: true });
+  });
+$('edit').onclick = () =>
+  run(async () => {
+    if (current) await message('document:set-readonly', { readonly: false });
+  });
+$('delete').onclick = () =>
+  run(async () => {
+    if (!current?.sha) throw Error('请先打开已有文档');
+    if (!confirm(`确定从数据仓删除 ${current.path}？`)) return;
+    await api(`contents/${path(current.path)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ message: `docs: 删除 ${current.path}`, sha: current.sha, branch }),
+    });
+    current = null;
+    dirty = false;
+    $('editor').hidden = true;
+    $('editor').src = 'about:blank';
+    $('empty').hidden = false;
+    await refresh();
+  });
+window.addEventListener('beforeunload', (e) => {
+  if (dirty) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+render();
+if (repo && token) run(refresh);
+
