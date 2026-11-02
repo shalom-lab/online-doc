@@ -40,7 +40,10 @@ function guard() {
 }
 async function api(p, options = {}) {
   if (!repo || !token) throw Error('请先配置数据仓和 Token');
-  const r = await fetch(`https://api.github.com/repos/${repo}/${p.replace(/^\/+|\/+$/g, '')}`, {
+  // GitHub answers the preflight with 404 when the repository URL has a trailing slash.
+  const route = p.replace(/^\/+|\/+$/g, '');
+  const url = `https://api.github.com/repos/${repo}${route ? `/${route}` : ''}`;
+  const r = await fetch(url, {
     cache: 'no-store',
     signal: AbortSignal.timeout(120000),
     ...options,

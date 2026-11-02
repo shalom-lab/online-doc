@@ -18,7 +18,7 @@ w.fetch = async (url, opts) => {
     ok: true,
     status: 200,
     json: async () =>
-      url.endsWith('/data/')
+      url === 'https://api.github.com/repos/owner/data'
         ? { default_branch: 'main' }
         : {
             tree: [
@@ -35,7 +35,16 @@ await new Promise((r) => setTimeout(r, 30));
 assert.equal(w.document.querySelectorAll('#files button').length, 1);
 assert.equal(w.document.querySelector('#files button').textContent, '中文.docx');
 assert.equal(w.testAPI.getState().repo, 'owner/data');
-assert(calls.every((c) => c.url.startsWith('https://api.github.com/repos/owner/data/')));
+assert.equal(calls[0].url, 'https://api.github.com/repos/owner/data');
+assert.equal(calls[1].url, 'https://api.github.com/repos/owner/data/git/trees/main?recursive=1');
+assert(
+  calls.every(
+    (c) =>
+      c.url === 'https://api.github.com/repos/owner/data' ||
+      c.url.startsWith('https://api.github.com/repos/owner/data/'),
+  ),
+);
+assert(calls.every((c) => !c.url.endsWith('/')));
 assert(calls.every((c) => c.opts.headers.Authorization === 'Bearer test-token'));
 const text = '中文文档';
 assert.equal(Buffer.from(w.testAPI.encode(new TextEncoder().encode(text)), 'base64').toString(), text);
