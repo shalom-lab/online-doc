@@ -235,7 +235,7 @@ async function precacheBootAssets(cache, vendor = false) {
         assets.add(url.href);
     }
   }
-  if (assets.size) await cache.addAll([...assets]);
+  if (assets.size) await cache.addAll([...new Set(assets)]);
 }
 
 // Install event: Pre-cache core UI assets
@@ -244,7 +244,7 @@ self.addEventListener('install', (event) => {
     Promise.all([
       // This entry is requested before the app can register its first worker.
       caches.open(RUNTIME_CACHE).then(async (cache) => {
-        await cache.addAll([
+        await cache.addAll([...new Set([
           '/web-apps/apps/api/documents/api.js',
           '/sdkjs/common/AllFonts.js',
           // Font menus load these lazily, including when reopening a saved file.
@@ -269,11 +269,11 @@ self.addEventListener('install', (event) => {
               path.replace('/index.html', `/locale/${language}.json`),
             ),
           ),
-        ]);
+        ])]);
         await precacheBootAssets(cache, true);
       }),
       caches.open(CORE_CACHE).then(async (cache) => {
-        await cache.addAll([...ASSETS_TO_CACHE, ...APP_ASSETS_TO_CACHE]);
+        await cache.addAll([...new Set([...ASSETS_TO_CACHE, ...APP_ASSETS_TO_CACHE])]);
         await precacheBootAssets(cache);
       }),
       // Keep a previously prepared assistant usable after updates, even if its
@@ -729,3 +729,6 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+
+

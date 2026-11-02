@@ -40,14 +40,14 @@ function guard() {
 }
 async function api(p, options = {}) {
   if (!repo || !token) throw Error('请先配置数据仓和 Token');
-  const r = await fetch(`https://api.github.com/repos/${repo}/${p}`, {
+  const r = await fetch(`https://api.github.com/repos/${repo}/${p.replace(/^\/+|\/+$/g, '')}`, {
     cache: 'no-store',
     signal: AbortSignal.timeout(120000),
     ...options,
     headers: {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
       ...options.headers,
     },
   });
@@ -312,6 +312,7 @@ if (repo && token) run(refresh);
 
 // Cancel must never submit or validate the settings form.
 $('cancel-settings').onclick = () => $('config').close();
+
 
 
 
