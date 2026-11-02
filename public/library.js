@@ -23,7 +23,16 @@ if ('serviceWorker' in navigator && !crossOriginIsolated) {
     })
     .catch(() => {});
 }
-const status = (s) => ($('status').textContent = s);
+let toastTimer;
+const toast = document.createElement('div');
+toast.id = 'toast'; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite'); toast.hidden = true;
+document.body.append(toast);
+const status = (s) => {
+  $('status').textContent = s;
+  const host = $('config').open ? $('config') : document.body;
+  host.append(toast); toast.textContent = s; toast.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.hidden = true; }, 5000);
+};
 const path = (p) => p.split('/').map(encodeURIComponent).join('/');
 function guard() {
   return !dirty || confirm('当前修改尚未提交，确定放弃？');
@@ -55,7 +64,10 @@ async function api(p, options = {}) {
 }
 async function run(fn) {
   if (busy) return;
+  if (!repo || !token) { status('尚未连接数据仓，请点击右上角「仓库设置」填写仓库和 Token。'); return; }
   busy = true;
+  $('status').textContent = '正在处理，请稍候…';
+  document.querySelector('main').setAttribute('aria-busy', 'true');
   document.querySelectorAll('button').forEach((b) => (b.disabled = true));
   try {
     await fn();
@@ -63,6 +75,7 @@ async function run(fn) {
     status(e.message);
   } finally {
     busy = false;
+    document.querySelector('main').setAttribute('aria-busy', 'false');
     document.querySelectorAll('button').forEach((b) => (b.disabled = false));
   }
 }
@@ -179,6 +192,7 @@ $('persist').onclick = () => {
     status('仓库格式应为 owner/repo');
     return;
   }
+  if (!($('token').value.trim() || token)) { status('请填写 GitHub Token 后再保存；也可以直接取消。'); $('token').focus(); return; }
   repo = r;
   token = $('token').value.trim() || token;
   localStorage.setItem('gh-online-doc-repo', repo);
@@ -214,7 +228,7 @@ $('create').onclick = () =>
     $('title').textContent = p;
     status('新文档已打开，编辑完成后点击提交保存。');
   });
-$('upload').onclick = () => $('picker').click();
+$('upload').onclick = () => { if (!repo || !token) { status('请先在「仓库设置」中连接数据仓，再上传文件。'); return; } $('picker').click(); };
 $('picker').onchange = () =>
   run(async () => {
     const f = $('picker').files[0];
@@ -243,11 +257,15 @@ $('save').onclick = () =>
   });
 $('preview').onclick = () =>
   run(async () => {
-    if (current) await message('document:set-readonly', { readonly: true });
+    if (!current) throw Error('请先从左侧打开文档，再预览。');
+    await message('document:set-readonly', { readonly: true });
+    status('已切换为只读预览');
   });
 $('edit').onclick = () =>
   run(async () => {
-    if (current) await message('document:set-readonly', { readonly: false });
+    if (!current) throw Error('请先打开或新建文档，再编辑。');
+    await message('document:set-readonly', { readonly: false });
+    status('已切换为编辑模式');
   });
 $('delete').onclick = () =>
   run(async () => {
@@ -272,4 +290,8 @@ window.addEventListener('beforeunload', (e) => {
 });
 render();
 if (repo && token) run(refresh);
+
+
+// Cancel must never submit or validate the settings form.
+$('cancel-settings').onclick = () => $('config').close();
 

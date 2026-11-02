@@ -5,7 +5,7 @@
   ><link rel="stylesheet" href="library.css" />
   <body>
     <header>
-      <strong>▤ 在线文档</strong><span>独立数据仓 · GitHub BYOK</span><button id="settings">仓库设置</button>
+      <strong>▤ 在线文档</strong><span>轻量文档工作台</span><button id="settings">仓库设置</button>
     </header>
     <main>
       <aside>
@@ -24,8 +24,8 @@
         <p id="status" role="status">先在仓库设置中填写数据仓及 Token。</p>
         <iframe id="editor" title="文档编辑器" hidden></iframe>
         <div id="empty">
-          <h2>让文档有自己的版本历史</h2>
-          <p>支持 Word、Excel、PowerPoint 与 PDF。<br />打开、编辑、提交，文件保存在你的 GitHub 数据仓。</p>
+          <h2>你的文档，随时接着写</h2>
+          <p>支持 Word、Excel、PowerPoint 与 PDF。<br />从左侧选择文档，或新建一份开始。</p>
         </div>
       </section>
     </main>
@@ -38,9 +38,10 @@
         /></label>
         <p>Token 需要所选数据仓 Contents 读写权限。<br />不向界面仓或第三方发送；同域脚本可访问本机存储。</p>
         <button id="persist" type="button">保存设置</button><button id="clear" type="button">清除设置</button
-        ><button>取消</button>
+        ><button type="button" id="cancel-settings">取消</button>
       </form>
     </dialog>
     <script type="module" src="library.js"></script>
   </body>
 </html>
+
