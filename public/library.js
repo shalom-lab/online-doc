@@ -30,7 +30,7 @@ toast.id = 'toast'; toast.setAttribute('role', 'status'); toast.setAttribute('ar
 document.body.append(toast);
 const status = (s) => {
   $('status').textContent = s;
-  const host = $('config').open ? $('config') : document.body;
+  const host = document.querySelector('dialog[open]') || document.body;
   host.append(toast); toast.textContent = s; toast.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.hidden = true; }, 5000);
 };
@@ -100,7 +100,7 @@ async function refresh() {
     throw Error('无法读取数据仓，请先在 GitHub 初始化一个 README，并检查权限。');
   }
   if (tree.truncated) throw Error('数据仓目录过大，列表被截断，请使用较小的专用数据仓');
-  entries = tree.tree.filter((x) => x.type === 'blob' && x.path.startsWith(DATA_DIR) && /\.(docx|xlsx|pptx|pdf)$/i.test(x.path));
+  entries = tree.tree.filter((x) => x.type === 'blob' && x.path.startsWith(DATA_DIR) && /\.(docx|xlsx|pptx|pdf|doc|xls|ppt|odt|ods|odp|rtf|txt|csv)$/i.test(x.path));
   render();
   status(`已连接 ${repo} · ${entries.length} 个文档`);
 }
@@ -214,30 +214,37 @@ $('clear').onclick = () => {
 };
 $('refresh').onclick = () => run(refresh);
 $('search').oninput = render;
-$('create').onclick = () =>
+$('create').onclick = () => {
+  if (!repo || !token) { status('请先在「仓库设置」中连接数据仓。'); return; }
+  if (!guard()) return;
+  $('new-name').value = '未命名';
+  $('new-doc').showModal();
+  $('new-name').focus();
+};
+$('cancel-new').onclick = () => $('new-doc').close();
+$('new-form').onsubmit = (event) => {
+  event.preventDefault();
+  const ext = $('new-type').value;
+  const name = $('new-name').value.trim().replace(/\.(docx|xlsx|pptx)$/i, '');
+  if (!name || name.includes('\\') || name.split('/').some(x => !x || x === '.' || x === '..')) { status('请输入有效名称，可使用子目录，不能包含 .. 或反斜杠。'); return; }
+  const p = DATA_DIR + name + '.' + ext;
   run(async () => {
-    if (!guard()) return;
     if (!branch) await refresh();
-    const name = prompt('输入文档名（保存到 online-doc-data/，支持子目录）', '未命名.docx');
-    if (!name) return;
-    const p = DATA_DIR + name;
-    if (!p) return;
-    if (!/\.(docx|xlsx|pptx)$/i.test(p) || name.startsWith('/') || p.split('/').some((x) => !x || x === '.' || x === '..'))
-      throw Error('请输入有效的 Office 文件路径');
-    if (entries.some((f) => f.path === p)) throw Error('该文件已存在');
+    if (entries.some(f => f.path === p)) throw Error('同名文件已存在，请换一个名称。');
+    $('new-doc').close();
     current = null;
-    await mount(`&new=${p.split('.').pop().toLowerCase()}`);
-    current = { path: p };
-    dirty = true;
+    await mount(`&new=${ext}`);
+    current = {path:p}; dirty = true;
     $('title').textContent = p;
-    status('新文档已打开，编辑完成后点击提交保存。');
+    status('已新建，编辑完成后点击「提交保存」。');
   });
+};
 $('upload').onclick = () => { if (!repo || !token) { status('请先在「仓库设置」中连接数据仓，再上传文件。'); return; } $('picker').click(); };
 $('picker').onchange = () =>
   run(async () => {
     const f = $('picker').files[0];
     if (!f) return;
-    if (!/\.(docx|xlsx|pptx|pdf)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
+    if (!/\.(docx|xlsx|pptx|pdf|doc|xls|ppt|odt|ods|odp|rtf|txt|csv)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
     if (!branch) await refresh();
     await put(f, DATA_DIR + f.name);
     await refresh();
@@ -247,10 +254,17 @@ $('save').onclick = () =>
   run(async () => {
     if (!current) throw Error('请先打开或新建文档');
     status('正在导出并提交…');
-    const data = await message('document:save');
+    const ext = current.path.split('.').pop().toLowerCase();
+    const targetExt = ({doc:'docx',odt:'docx',rtf:'docx',txt:'docx',xls:'xlsx',ods:'xlsx',ppt:'pptx',odp:'pptx'})[ext] || ext;
+    const savePath = current.path.replace(/\.[^.]+$/, '.' + targetExt);
+    const converted = savePath !== current.path;
+    if (converted && !confirm(`此格式将另存为 ${savePath}，保留原文件。是否继续？`)) return;
+    const data = await message('document:save', {targetExt:targetExt.toUpperCase()});
     const version = changeVersion;
     dirty = true;
-    const result = await put(data.file, current.path, current.sha);
+    const result = await put(data.file, savePath, converted ? undefined : current.sha);
+    current.path = savePath;
+    $('title').textContent = savePath;
     current.sha = result.content.sha;
     dirty = Boolean(data.dirty) || changeVersion !== version;
     if (!entries.some((f) => f.path === current.path)) {
@@ -298,5 +312,7 @@ if (repo && token) run(refresh);
 
 // Cancel must never submit or validate the settings form.
 $('cancel-settings').onclick = () => $('config').close();
+
+
 
 

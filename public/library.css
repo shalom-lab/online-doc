@@ -184,3 +184,5 @@ dialog p { font-size: 11px; line-height: 1.8; margin: 0 0 20px; }
 #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); max-width: min(520px, calc(100vw - 32px)); padding: 12px 18px; border: 1px solid #d8e8df; border-radius: 10px; background: #244d3e; color: white; box-shadow: 0 8px 32px #173c2926; font-size: 13px; line-height: 1.6; z-index: 1000; }
 dialog #toast { position: static; transform: none; margin: 16px 0 0; max-width: 100%; clear: both; }
 main[aria-busy='true'] { cursor: progress; }
+
+select { display:block; width:100%; font:inherit; padding:9px 11px; border:1px solid #cddbd2; border-radius:7px; background:white; margin:7px 0 16px; }
