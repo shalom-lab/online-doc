@@ -25,6 +25,7 @@ jobs:
       - run: node bin/test-library.mjs
       - run: pnpm build
       - run: node bin/github-pages.mjs
+      - run: node bin/check-pages.mjs
       - run: node bin/build-identity.mjs dist
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -42,3 +43,4 @@ jobs:
     steps:
       - uses: actions/deploy-pages@v4
         id: deployment
+
