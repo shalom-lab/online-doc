@@ -1,3 +1,4 @@
+const DATA_DIR = 'online-doc-data/';
 const $ = (id) => document.getElementById(id);
 let repo = localStorage.getItem('gh-online-doc-repo') || '',
   token = localStorage.getItem('gh-online-doc-token') || '';
@@ -84,7 +85,7 @@ function render() {
   $('files').replaceChildren();
   for (const f of entries.filter((f) => f.path.toLowerCase().includes($('search').value.toLowerCase()))) {
     const b = document.createElement('button');
-    b.textContent = f.path;
+    b.textContent = f.path.slice(DATA_DIR.length);
     b.onclick = () => run(() => open(f));
     $('files').append(b);
   }
@@ -99,7 +100,7 @@ async function refresh() {
     throw Error('无法读取数据仓，请先在 GitHub 初始化一个 README，并检查权限。');
   }
   if (tree.truncated) throw Error('数据仓目录过大，列表被截断，请使用较小的专用数据仓');
-  entries = tree.tree.filter((x) => x.type === 'blob' && /\.(docx|xlsx|pptx|pdf)$/i.test(x.path));
+  entries = tree.tree.filter((x) => x.type === 'blob' && x.path.startsWith(DATA_DIR) && /\.(docx|xlsx|pptx|pdf)$/i.test(x.path));
   render();
   status(`已连接 ${repo} · ${entries.length} 个文档`);
 }
@@ -172,6 +173,7 @@ function encode(bytes) {
   return btoa(s);
 }
 async function put(file, p, sha) {
+  if (!p.startsWith(DATA_DIR) || p.includes('\\') || p.split('/').some(x => !x || x === '.' || x === '..')) throw Error('文档必须保存在 online-doc-data/ 目录内');
   if (file.size > 20 * 1024 * 1024) throw Error('当前版本限制文件小于 20 MB');
   const content = encode(new Uint8Array(await file.arrayBuffer()));
   return api(`contents/${path(p)}`, {
@@ -216,9 +218,11 @@ $('create').onclick = () =>
   run(async () => {
     if (!guard()) return;
     if (!branch) await refresh();
-    const p = prompt('输入新文件路径（支持 .docx、.xlsx、.pptx）', '文档/未命名.docx');
+    const name = prompt('输入文档名（保存到 online-doc-data/，支持子目录）', '未命名.docx');
+    if (!name) return;
+    const p = DATA_DIR + name;
     if (!p) return;
-    if (!/\.(docx|xlsx|pptx)$/i.test(p) || p.startsWith('/') || p.split('/').some((x) => !x || x === '.' || x === '..'))
+    if (!/\.(docx|xlsx|pptx)$/i.test(p) || name.startsWith('/') || p.split('/').some((x) => !x || x === '.' || x === '..'))
       throw Error('请输入有效的 Office 文件路径');
     if (entries.some((f) => f.path === p)) throw Error('该文件已存在');
     current = null;
@@ -235,7 +239,7 @@ $('picker').onchange = () =>
     if (!f) return;
     if (!/\.(docx|xlsx|pptx|pdf)$/i.test(f.name)) throw Error('请选择 Office 或 PDF 文档');
     if (!branch) await refresh();
-    await put(f, f.name);
+    await put(f, DATA_DIR + f.name);
     await refresh();
     $('picker').value = '';
   });
@@ -294,4 +298,5 @@ if (repo && token) run(refresh);
 
 // Cancel must never submit or validate the settings form.
 $('cancel-settings').onclick = () => $('config').close();
+
 

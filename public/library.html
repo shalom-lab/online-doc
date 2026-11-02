@@ -13,7 +13,7 @@
         <p id="repoLabel">尚未设置数据仓</p>
         <button id="refresh">刷新列表</button><button id="create">新建文档</button><button id="upload">上传文件</button
         ><input id="picker" type="file" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
-        <div id="files"></div>
+        <p class="storage-path">存储目录：<code>online-doc-data/</code></p><div id="files"></div>
         <small>文档提交到你指定的数据仓。<br />界面由 GitHub Pages 托管。</small>
       </aside>
       <section>
@@ -31,7 +31,7 @@
     </main>
     <dialog id="config">
       <form method="dialog">
-        <h2>连接数据仓</h2>
+        <h2>连接数据仓</h2><p>文档统一保存到 <code>online-doc-data/</code>，首次保存自动创建。<br>注入键：<code>gh-online-doc-repo</code> / <code>gh-online-doc-token</code></p>
         <label>仓库<input id="repo" placeholder="owner/repo" required /></label
         ><label
           >个人访问 Token<input id="token" type="password" autocomplete="off" placeholder="仅存于当前浏览器"
@@ -44,4 +44,5 @@
     <script type="module" src="library.js"></script>
   </body>
 </html>
+
 
