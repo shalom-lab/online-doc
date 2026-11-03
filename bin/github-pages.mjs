@@ -1,13 +1,11 @@
 // Run after the upstream production build. GitHub Pages has no custom headers.
 import { readFileSync, writeFileSync, readdirSync, statSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { brotliDecompressSync } from 'node:zlib';
+import { preparePortableWasm } from './portable-wasm.mjs';
 import { secureEditorHtml } from './editor-csp.mjs';
 const root = 'dist',
   base = '/online-doc/';
-const wasm = join(root, 'sdkjs/common/wasm/x2t/x2t.wasm.br');
-const bytes = readFileSync(wasm);
-if (bytes[0] !== 0 || bytes[1] !== 97) writeFileSync(wasm, brotliDecompressSync(bytes));
+preparePortableWasm(root);
 // Prefix literal origin-root resource paths, including the vendored iframe URLs.
 const roots = [...readdirSync(root), 'editor', 'history']
   .map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))

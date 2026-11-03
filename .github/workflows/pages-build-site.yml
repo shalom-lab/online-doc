@@ -25,6 +25,7 @@ jobs:
       - run: node bin/test-library.mjs
       - run: node bin/test-workspace-home.mjs
       - run: node bin/test-pages-paths.mjs
+      - run: node bin/test-portable-wasm.mjs
       - run: node bin/test-editor-progress.mjs
       - run: pnpm build
       - run: node bin/github-pages.mjs

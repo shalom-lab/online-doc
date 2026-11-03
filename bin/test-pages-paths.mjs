@@ -14,7 +14,7 @@ try {
     mkdirSync(join(root, dir), { recursive: true });
   }
   writeFileSync(join(root, sdkPath), readFileSync(join(workspace, 'public', sdkPath)));
-  writeFileSync(join(root, 'sdkjs/common/wasm/x2t/x2t.wasm.br'), Buffer.from('0061736d', 'hex'));
+  writeFileSync(join(root, 'sdkjs/common/wasm/x2t/x2t.wasm.br'), Buffer.from('0061736d01000000', 'hex'));
   writeFileSync(join(root, 'index.html'), '<script src="/library.js"></script>');
   writeFileSync(join(root, 'library.html'), '<script src="/library.js"></script>');
   writeFileSync(join(root, 'library.js'), '');

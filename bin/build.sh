@@ -70,6 +70,10 @@ node bin/locale-fill.mjs
 
 pnpm vite build $VITE_MODE_ARGS
 
+# Decode the engine before vendor cache fingerprints are calculated. This
+# works on EdgeOne and other hosts without Cloudflare-specific headers.
+node bin/portable-wasm.mjs "$DIST_DIR"
+
 # Hash exact inline bootstrap bytes after Vite transforms the editor entry.
 # The meta policy travels with the cached shell on every static host.
 node bin/editor-csp.mjs "$DIST_DIR"

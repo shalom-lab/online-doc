@@ -16,7 +16,7 @@ for(const page of ['index.html','editor.html']){
   assert(html.includes('sha256-'+createHash('sha256').update(script).digest('base64')),'Stale editor CSP');
  }
 }
-assert.equal(readFileSync(join(root,'sdkjs/common/wasm/x2t/x2t.wasm.br')).subarray(0,4).toString('hex'),'0061736d');
+assert.equal(readFileSync(join(root,'sdkjs/common/wasm/x2t/x2t.wasm')).subarray(0,4).toString('hex'),'0061736d');
 function size(dir){return readdirSync(dir).reduce((n,f)=>{const p=join(dir,f);return n+(statSync(p).isDirectory()?size(p):statSync(p).size);},0);}
 assert(size(root)<1024**3,'Pages artifact exceeds 1 GiB');
 console.log('PASS: Pages entry resources, /online-doc/ base, CSP hashes, WASM magic and size');
