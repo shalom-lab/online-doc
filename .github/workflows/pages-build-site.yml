@@ -23,6 +23,7 @@ jobs:
           version: 11.4.0
       - run: pnpm install --frozen-lockfile
       - run: node bin/test-library.mjs
+      - run: node bin/test-pages-paths.mjs
       - run: pnpm build
       - run: node bin/github-pages.mjs
       - run: node bin/check-pages.mjs

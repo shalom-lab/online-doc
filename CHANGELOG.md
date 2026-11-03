@@ -7,6 +7,10 @@ notes. Entries describe what users experience, not internal refactors.
 
 ## [Unreleased]
 
+### Fixed
+
+- GitHub Pages opens document, spreadsheet and presentation editors at the correct iframe URL instead of returning a 404 page.
+
 ### Removed
 
 - External MCP and Google Drive connections in the AI assistant. Local file

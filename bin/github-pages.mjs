@@ -18,6 +18,9 @@ function walk(dir) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) walk(p);
     else if (/\.(html|js|css|json)$/.test(p)) {
+      // This SDK derives its base from its own script URL. Its /index.html
+      // strings are suffixes appended to that base, not origin-root URLs.
+      if (p === join(root, 'web-apps/apps/api/documents/api.js')) continue;
       let s = readFileSync(p, 'utf8');
       s = s.replace(pattern, (_, q) => q + base);
       writeFileSync(p, s);
