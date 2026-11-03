@@ -30,6 +30,7 @@ notes. Entries describe what users experience, not internal refactors.
 - The document library can open a connected GitHub repository. The repository request no longer keeps a trailing slash that the browser preflight rejects.
 - An empty GitHub repository can be used immediately. The first new file or upload creates the initial commit, without adding a README first.
 - The document library uses its logo in the browser tab and the page header.
+- The document list is a collapsible side panel. Folding it gives the editor the rest of the page.
 - Read-only documents now look read-only: the toolbar keeps only the File and View tabs, editing buttons such as paste and macros are hidden, and the side panels are locked, while search, zoom and navigation stay available. Switching read-only off restores the full toolbar.
 - Exporting a PDF or another format keeps unsaved changes in the editable original visible until the original is saved.
 - Failed file opens restore usable file controls, including keyboard access.

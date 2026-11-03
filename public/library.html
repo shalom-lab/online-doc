@@ -6,6 +6,11 @@
     <title>在线文档 · 我的文档库</title>
     <link rel="icon" type="image/svg+xml" href="/icons/document.svg" />
     <link rel="stylesheet" href="/library.css" />
+    <script>
+      try {
+        if (localStorage.getItem('library-sider') === '0') document.documentElement.classList.add('sider-collapsed');
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <header>
@@ -15,7 +20,7 @@
       </a>
     </header>
     <main>
-      <aside>
+      <aside id="sider">
         <h1>我的文档库</h1>
         <p id="repoLabel">尚未设置数据仓</p>
         <div class="library-actions"><button id="create">＋ 新建</button><button id="upload">上传</button><button id="refresh" title="刷新文档列表">刷新</button></div><input id="picker" type="file" accept=".docx,.xlsx,.pptx,.pdf,.doc,.xls,.ppt,.odt,.ods,.odp,.rtf,.txt,.csv" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
@@ -24,7 +29,7 @@
       </aside>
       <section>
         <nav>
-          <b id="title">选择文档，开始创作</b><button id="preview">只读预览</button><button id="edit">编辑</button
+          <button id="sider-toggle" type="button" aria-controls="sider" aria-expanded="true" title="收起文档库" aria-label="收起文档库"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 6 8l4 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b id="title">选择文档，开始创作</b><button id="preview">只读预览</button><button id="edit">编辑</button
           ><button id="save">提交保存</button><button id="delete">删除</button>
         </nav>
         <p id="status" role="status">先在仓库设置中填写数据仓及 Token。</p>

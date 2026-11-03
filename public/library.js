@@ -77,7 +77,7 @@ async function run(fn) {
   busy = true;
   $('status').textContent = '正在处理，请稍候…';
   document.querySelector('main').setAttribute('aria-busy', 'true');
-  document.querySelectorAll('button').forEach((b) => (b.disabled = true));
+  document.querySelectorAll('button:not(#sider-toggle)').forEach((b) => (b.disabled = true));
   try {
     await fn();
   } catch (e) {
@@ -85,7 +85,7 @@ async function run(fn) {
   } finally {
     busy = false;
     document.querySelector('main').setAttribute('aria-busy', 'false');
-    document.querySelectorAll('button').forEach((b) => (b.disabled = false));
+    document.querySelectorAll('button:not(#sider-toggle)').forEach((b) => (b.disabled = false));
   }
 }
 function render() {
@@ -323,6 +323,26 @@ window.addEventListener('beforeunload', (e) => {
 });
 render();
 if (repo && token) run(refresh);
+function setSider(collapsed) {
+  document.documentElement.classList.toggle('sider-collapsed', collapsed);
+  const button = $('sider-toggle');
+  button.setAttribute('aria-expanded', String(!collapsed));
+  const label = collapsed ? '展开文档库' : '收起文档库';
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  try {
+    localStorage.setItem('library-sider', collapsed ? '0' : '1');
+  } catch (e) {}
+}
+setSider(localStorage.getItem('library-sider') === '0');
+$('sider-toggle').onclick = () => {
+  setSider(!document.documentElement.classList.contains('sider-collapsed'));
+  const frame = $('editor');
+  try {
+    frame.contentWindow.dispatchEvent(new Event('resize'));
+  } catch (e) {}
+};
+
 
 
 // Cancel must never submit or validate the settings form.
