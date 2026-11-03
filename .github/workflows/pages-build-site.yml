@@ -24,6 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: node bin/test-library.mjs
       - run: node bin/test-pages-paths.mjs
+      - run: node bin/test-editor-progress.mjs
       - run: pnpm build
       - run: node bin/github-pages.mjs
       - run: node bin/check-pages.mjs

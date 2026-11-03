@@ -40,6 +40,7 @@ export async function handleDocumentOperation(options: {
     // index.html (it cost ~0.5 s of homepage LCP for visitors who never open
     // a document); every open path funnels through here, so load it on
     // demand. Idempotent once window.DocsAPI exists.
+    window.dispatchEvent(new Event('editor:load-start'));
     await loadEditorApi();
     if (options.isCurrent && !options.isCurrent()) throw new DOMException('Document open superseded', 'AbortError');
     const { isNew, fileName, file, readonly = false } = options;
@@ -104,6 +105,7 @@ export async function handleDocumentOperation(options: {
     });
   } catch (error: any) {
     if (error?.name === 'AbortError') throw error;
+    window.dispatchEvent(new Event('editor:load-error'));
     console.error(`${t('documentOperationFailed')}`, error);
     alert(`${t('documentOperationFailed')}${error.message}`);
     throw error;

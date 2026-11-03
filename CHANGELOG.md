@@ -9,6 +9,8 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Fixed
 
+- Editor loading now shows resource count, loaded resource size (including cache), elapsed time and document initialization status instead of leaving users guessing.
+
 - GitHub Pages opens document, spreadsheet and presentation editors at the correct iframe URL instead of returning a 404 page.
 
 ### Removed

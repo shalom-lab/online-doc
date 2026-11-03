@@ -219,6 +219,7 @@ function createPersonalEditorInstance(config: {
     },
     events: {
       onAppReady: () => {
+        window.dispatchEvent(new Event('editor:app-ready'));
         markEditorFrameReady();
         // The pdf editor's offline path differs from word/cell/slide: those
         // apps' Offline controllers fetch document.url and convert it

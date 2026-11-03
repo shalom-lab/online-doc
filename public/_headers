@@ -25,6 +25,9 @@
 /sw.js
   Cache-Control: no-cache
 
+/editor-progress.js
+  Cache-Control: no-cache
+
 # Unhashed, deploy-coupled files: stable filenames whose content changes with
 # deploys — browsers must revalidate so they always match the current HTML.
 /app-tokens.css
