@@ -149,6 +149,7 @@ const modelWorkerCsp = (): Plugin => {
 // PRs used to be able to). Dev regenerates when a source markdown changes.
 const generatedPages = (): Plugin => {
   const sources = new Set<string>();
+  sources.add(path.resolve(__dirname, 'index.html'));
   for (const page of PAGES) for (const src of Object.values(page.sources)) sources.add(path.resolve(__dirname, src));
   const run = () => {
     // The same legal notices must be available in dev, static hosting and Docker.

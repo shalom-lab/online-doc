@@ -13,7 +13,7 @@
  *   entities.mjs     the JSON-LD entity graph
  *   markdown.mjs     frontmatter, the renderer, the extractors
  *   chrome.mjs       language switcher, GitHub mark, route helper
- *   render-home.mjs  the homepage template
+ *   workspace-home.mjs  aliases of the authored document-library homepage
  *   render-page.mjs  the template for everything else
  *
  * Model: PAGES is a list of { slug, sources: { <locale>: <md file> } }. Every
@@ -28,34 +28,22 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROOT } from './pages/constants.mjs';
-import { DEFAULT_LOCALE, LOCALES } from './pages/locales.mjs';
+import { LOCALES } from './pages/locales.mjs';
 import { PAGES } from './pages/pages.mjs';
 import { extractFaq, extractSteps, parseFrontmatter, renderMarkdown, wrapFaqSection } from './pages/markdown.mjs';
 import { routeFor } from './pages/chrome.mjs';
-import { renderHome } from './pages/render-home.mjs';
+import { workspaceHomes } from './pages/workspace-home.mjs';
 import { renderPage } from './pages/render-page.mjs';
 
 export { LOCALES, MENU_ORDER } from './pages/locales.mjs';
 export { LANDING_SLUGS, PAGES } from './pages/pages.mjs';
 
 function pathFor(output, dir) {
-  return output.rel === 'index.html' ? resolve(ROOT, 'index.html') : resolve(dir, output.rel);
+  return resolve(dir, output.rel);
 }
 
 export function generate({ outDir = resolve(ROOT, 'public') } = {}) {
-  const outputs = [];
-  // The homepages first: they are the one page whose source is data rather
-  // than prose, and every other page's language switch links back to them.
-  const homeLocales = Object.keys(LOCALES).filter((locale) => existsSync(resolve(ROOT, `content/${locale}/home.json`)));
-  for (const locale of homeLocales) {
-    const src = `content/${locale}/home.json`;
-    const data = JSON.parse(readFileSync(resolve(ROOT, src), 'utf8'));
-    const html = renderHome({ locale, data, locales: homeLocales });
-    // The default locale's homepage is the site root, index.html at the top of
-    // the repo rather than under public/ (it is a Vite entry).
-    const rel = locale === DEFAULT_LOCALE ? 'index.html' : `${LOCALES[locale].prefix}/index.html`.replace(/^\//, '');
-    outputs.push({ rel, route: LOCALES[locale].home, html, source: src, locale, kind: 'home' });
-  }
+  const outputs = workspaceHomes();
   for (const page of PAGES) {
     for (const locale of Object.keys(LOCALES)) {
       const src = page.sources[locale];
@@ -93,13 +81,10 @@ export function generate({ outDir = resolve(ROOT, 'public') } = {}) {
 }
 
 /**
- * The outputs that stay in the repo. Only the default locale's homepage: it is
- * index.html at the repo root, a Vite build entry, and a build must not depend
- * on a plugin having written its inputs first. Every other page -- including
- * the other locales' homepages -- is generated into a gitignored path, so
- * there is nothing to go stale and nothing to check.
+ * The compatibility alias stays committed; the root index.html is authored
+ * source, not generated output. Locale aliases and help pages are generated.
  */
-const COMMITTED = new Set(['index.html']);
+const COMMITTED = new Set(['library.html']);
 
 /** The committed outputs a fresh render would change (empty when all current). */
 export function check({ publicDir = resolve(ROOT, 'public') } = {}) {

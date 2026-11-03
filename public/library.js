@@ -1,4 +1,6 @@
 const DATA_DIR = 'online-doc-data/';
+// Resolve against this script, including locale aliases and Pages subpaths.
+const APP_BASE = new URL('.', document.currentScript?.src || new URL('library.js', location.href));
 const $ = (id) => document.getElementById(id);
 let repo = localStorage.getItem('gh-online-doc-repo') || '',
   token = localStorage.getItem('gh-online-doc-token') || '';
@@ -133,7 +135,7 @@ function mount(query = '') {
   const frame = $('editor');
   frame.hidden = false;
   $('empty').hidden = true;
-  frame.src = `editor.html?embed=1&locale=zh-CN&embedOrigin=${encodeURIComponent(location.origin)}${query}`;
+  frame.src = `${new URL('editor.html', APP_BASE).href}?embed=1&locale=zh-CN&embedOrigin=${encodeURIComponent(location.origin)}${query}`;
   return new Promise((resolve, reject) => {
     const start = Date.now();
     const t = setInterval(() => {

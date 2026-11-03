@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>
     在线文档 · 我的文档库</title
-  ><link rel="stylesheet" href="library.css" />
+  ><link rel="stylesheet" href="/library.css" />
   <body>
     <header>
       <strong>▤ 在线文档</strong><span>轻量文档工作台</span><button id="settings">仓库设置</button>
@@ -16,7 +16,7 @@
         <p id="repoLabel">尚未设置数据仓</p>
         <div class="library-actions"><button id="create">＋ 新建</button><button id="upload">上传</button><button id="refresh" title="刷新文档列表">刷新</button></div><input id="picker" type="file" accept=".docx,.xlsx,.pptx,.pdf,.doc,.xls,.ppt,.odt,.ods,.odp,.rtf,.txt,.csv" hidden /><input id="search" placeholder="搜索文件名" aria-label="搜索文件名" />
         <p class="storage-path">存储目录：<code>online-doc-data/</code></p><div id="files"></div>
-        <small>文档提交到你指定的数据仓。<br />界面由 GitHub Pages 托管。</small>
+        <small>文档提交到你指定的数据仓。<br />在线编辑，保存到你自己的 GitHub 仓库。</small>
       </aside>
       <section>
         <nav>
@@ -44,10 +44,6 @@
       </form>
     </dialog>
     <dialog id="new-doc"><form id="new-form"><h2>新建文件</h2><label>文件类型<select id="new-type"><option value="docx">文档 · Word (.docx)</option><option value="xlsx">表格 · Excel (.xlsx)</option><option value="pptx">演示文稿 · PowerPoint (.pptx)</option></select></label><label>文件名称<input id="new-name" placeholder="例如：项目计划" autocomplete="off"></label><p>保存到 online-doc-data/，扩展名自动添加。<br>其他格式请使用「上传文件」导入。</p><button type="submit">创建并编辑</button><button id="cancel-new" type="button">取消</button></form></dialog>
-<script type="module" src="library.js"></script>
+<script defer src="/library.js"></script>
   </body>
 </html>
-
-
-
-

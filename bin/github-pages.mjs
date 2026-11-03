@@ -28,8 +28,7 @@ function walk(dir) {
   }
 }
 walk(root);
-copyFileSync(join(root, 'library.html'), join(root, 'index.html'));
-copyFileSync(join(root, 'library.html'), join(root, '404.html'));
+copyFileSync(join(root, 'index.html'), join(root, '404.html'));
 const editor = join(root, 'editor.html');
 writeFileSync(
   editor,

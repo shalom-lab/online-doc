@@ -9,6 +9,8 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Fixed
 
+- The document library is now the default homepage in source and standard builds, including EdgeOne. Locale homepage routes also use the library; GitHub Pages no longer replaces the homepage during deployment.
+
 - Editor loading now shows resource count, loaded resource size (including cache), elapsed time and document initialization status instead of leaving users guessing.
 
 - GitHub Pages opens document, spreadsheet and presentation editors at the correct iframe URL instead of returning a 404 page.

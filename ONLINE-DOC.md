@@ -19,6 +19,8 @@
 
 ## CI/CD
 
+默认首页源码为根目录 `index.html`，直接显示中文文档库。`pnpm build` 的 `dist/index.html` 在所有平台保持相同入口，EO 使用构建命令 `pnpm build`、输出目录 `dist`。`public/library.html` 和各语言首页由构建流程从该首页生成，修改首页请编辑根目录文件。GitHub Pages 脚本只负责子路径和托管兼容处理，不再替换首页。
+
 Node 24，pnpm 11.4.0，安装锁定依赖、执行上游构建、运行 Pages 适配，再上传 dist。Settings → Pages → Source 设为 GitHub Actions。main 推送自动部署，PR 只构建。
 
 本地：`pnpm install --frozen-lockfile`、`pnpm build`、`node bin/github-pages.mjs`。构建脚本需要 Bash（Windows 可使用 Git Bash）。上游包含大体积 Office/WASM 资源，需核验 Pages 发布体积及子路径行为。

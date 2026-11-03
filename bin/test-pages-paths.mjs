@@ -15,7 +15,7 @@ try {
   }
   writeFileSync(join(root, sdkPath), readFileSync(join(workspace, 'public', sdkPath)));
   writeFileSync(join(root, 'sdkjs/common/wasm/x2t/x2t.wasm.br'), Buffer.from('0061736d', 'hex'));
-  writeFileSync(join(root, 'index.html'), '');
+  writeFileSync(join(root, 'index.html'), '<script src="/library.js"></script>');
   writeFileSync(join(root, 'library.html'), '<script src="/library.js"></script>');
   writeFileSync(join(root, 'library.js'), '');
   writeFileSync(join(root, 'editor.html'), '<html><head></head><body><script src="/web-apps/apps/api/documents/api.js"></script></body></html>');
