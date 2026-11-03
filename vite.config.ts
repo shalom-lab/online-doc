@@ -83,7 +83,7 @@ const localIsolationHeaders = (): Plugin => {
 // serves public/ and dist/ as plain files and would hand over the compressed
 // bytes unlabelled, so dev and preview need the same declaration Cloudflare
 // Pages and static-web-server get from their own config.
-const BROTLI_ASSETS = ['/sdkjs/common/wasm/x2t/x2t.wasm.br'];
+const BROTLI_ASSETS = ['/sdkjs/common/wasm/x2t/x2t.wasm.br', '/sdkjs/common/wasm/x2t/x2t.browser.wasm.br'];
 
 const precompressedAssets = (): Plugin => {
   const middleware = (

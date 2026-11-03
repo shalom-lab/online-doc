@@ -19,6 +19,8 @@
 
 ## CI/CD
 
+EO 读取仓库根目录 `edgeone.json`，使用压缩 WASM 和对应 Brotli 响应头，构建后检查每个文件不超过 25 MiB。无需在控制台手工添加响应头。GitHub Pages 无自定义响应头，保留单独的原始 WASM 适配。
+
 默认首页源码为根目录 `index.html`，直接显示中文文档库。`pnpm build` 的 `dist/index.html` 在所有平台保持相同入口，EO 使用构建命令 `pnpm build`、输出目录 `dist`。`public/library.html` 和各语言首页由构建流程从该首页生成，修改首页请编辑根目录文件。GitHub Pages 脚本只负责子路径和托管兼容处理，不再替换首页。
 
 Node 24，pnpm 11.4.0，安装锁定依赖、执行上游构建、运行 Pages 适配，再上传 dist。Settings → Pages → Source 设为 GitHub Actions。main 推送自动部署，PR 只构建。

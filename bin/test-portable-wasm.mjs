@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { brotliCompressSync, gzipSync, brotliDecompressSync } from 'node:zlib';
@@ -32,6 +32,18 @@ try {
   const decoded = readFileSync(join(dir, 'x2t.wasm'));
   assert.deepEqual(decoded, brotliDecompressSync(vendor));
   assert(WebAssembly.validate(decoded), 'Real vendored engine must be valid WASM');
+  preparePortableWasm(temp, { compressed: true });
+  const compressed = readFileSync(join(dir, 'x2t.browser.wasm.br'));
+  assert(compressed.length < 25 * 1024 ** 2, 'EO engine must fit the upload limit');
+  assert(!existsSync(join(dir, 'x2t.wasm')), 'EO artifact must not contain the 40 MiB raw file');
+  assert.deepEqual(brotliDecompressSync(compressed), decoded);
+  assert.match(readFileSync(join(dir, 'x2t.worker.js'), 'utf8'), /x2t\.browser\.wasm\.br/);
+  const config = JSON.parse(readFileSync('edgeone.json', 'utf8'));
+  const headers = config.headers.find(rule => rule.source.endsWith('/x2t.browser.wasm.br')).headers;
+  assert(headers.some(header => header.key === 'Content-Encoding' && header.value === 'br'));
+  preparePortableWasm(temp);
+  assert.match(readFileSync(join(dir, 'x2t.worker.js'), 'utf8'), /'x2t\.wasm'/);
+  console.log(`PASS: EO compressed artifact ${compressed.length} bytes, decoded bytes identical, GitHub conversion preserved`);
   console.log(`PASS: Brotli/gzip/raw conversion, cache URLs, idempotence and real engine (${decoded.length} bytes)`);
 } finally {
   rmSync(temp, { recursive: true, force: true });

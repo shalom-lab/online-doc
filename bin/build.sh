@@ -70,9 +70,9 @@ node bin/locale-fill.mjs
 
 pnpm vite build $VITE_MODE_ARGS
 
-# Decode the engine before vendor cache fingerprints are calculated. This
-# works on EdgeOne and other hosts without Cloudflare-specific headers.
-node bin/portable-wasm.mjs "$DIST_DIR"
+# Keep the engine below static-host upload limits. edgeone.json and _headers
+# declare Brotli; headerless GitHub Pages separately emits raw WASM.
+node bin/portable-wasm.mjs "$DIST_DIR" --compressed
 
 # Hash exact inline bootstrap bytes after Vite transforms the editor entry.
 # The meta policy travels with the cached shell on every static host.

@@ -124,6 +124,10 @@
   Content-Encoding: br
   Cache-Control: public, max-age=31536000, immutable
 
+/sdkjs/common/wasm/x2t/x2t.browser.wasm.br
+  Content-Encoding: br
+  Cache-Control: public, max-age=31536000, immutable
+
 # Crawler hygiene: the vendored editor trees contain thousands of internal
 # HTML/JS files (help pages in every locale, iframe shells, plugin manifests)
 # that a crawler otherwise spends its budget on and may surface in place of

@@ -9,6 +9,8 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Fixed
 
+- EdgeOne builds keep the editor engine compressed below the 25 MiB file limit and configure Brotli response headers. An output-size check catches oversized files before upload.
+
 - Standard builds publish decoded x2t WASM at a new URL, so EdgeOne and other static hosts can open documents without custom Brotli response headers.
 
 - The document library is now the default homepage in source and standard builds, including EdgeOne. Locale homepage routes also use the library; GitHub Pages no longer replaces the homepage during deployment.
