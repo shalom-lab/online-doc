@@ -73,7 +73,7 @@ async function api(p, options = {}) {
 }
 async function run(fn) {
   if (busy) return;
-  if (!repo || !token) { status('尚未连接数据仓，请点击右上角「仓库设置」填写仓库和 Token。'); return; }
+  if (!repo || !token) { status('尚未连接数据仓，请在左侧文档库打开「仓库设置」，填写仓库和 Token。'); return; }
   busy = true;
   $('status').textContent = '正在处理，请稍候…';
   document.querySelector('main').setAttribute('aria-busy', 'true');

@@ -208,3 +208,17 @@ dialog code { overflow-wrap: anywhere; font-size: 10px; background: #f1f5f2; pad
 html.sider-collapsed #sider-toggle svg { transform: scaleX(-1); }
 html.sider-collapsed aside { width: 0; max-height: 0; min-width: 0; padding: 0; border-width: 0; overflow: hidden; }
 main > section { flex: 1; min-width: 0; min-height: 0; }
+@media (min-width: 751px) { main { height: 100dvh; } }
+aside { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+aside header { height: auto; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 0 0 14px; margin: 0 0 14px; background: transparent; border-bottom: 1px solid #e4ece8; }
+aside header .brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+aside header strong { flex: 1; min-width: 0; font-size: 16px; }
+aside header span { display: block; flex: none; margin: 0; }
+aside header #settings { width: 100%; margin: 0; }
+aside header .github-link { width: 32px; height: 32px; }
+#files { flex: 1; min-height: 0; overflow: auto; }
+@media (max-width: 750px) {
+  aside { max-height: 48vh; }
+  html.sider-collapsed main { height: 100dvh; }
+  html.sider-collapsed section { height: 100dvh; }
+}
